@@ -14,6 +14,24 @@ Image {
         visible: root.debug
     }
 
+    Rectangle {
+        height: childrenRect.height
+        width: parent.width/9*8
+        anchors.margins: 10
+        radius: 5
+        Text {
+            anchors.margins: 10
+            text: slideCaptions[frame]
+            color: "white"
+            font.pointSize: 24
+        }
+        color: "black"
+        anchors.top: parent.top
+        anchors.left: parent.left
+        opacity: frame < slideCaptions.length ? parent.opacity*0.75 : 0
+    }
+
+
     function flash() {
         flashAnim.start()
     }

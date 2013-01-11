@@ -5,6 +5,8 @@ import sys
 import os
 
 parser = optparse.OptionParser()
+parser.add_option("-a", "--author")
+parser.add_option("-t", "--title")
 
 (options, args) = parser.parse_args(sys.argv)
 
@@ -37,9 +39,17 @@ files = sorted(
     sorter
 )
 
-print files
+captions = []
+try:
+    captions = open("captions.txt", 'r').readlines()
+except:
+    pass
+print captions
 
 view.rootContext().setContextProperty("slideFiles", files)
+view.rootContext().setContextProperty("slideCaptions", captions)
+view.rootContext().setContextProperty("author", options.author)
+view.rootContext().setContextProperty("title", options.title)
 view.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
 view.setSource(QtCore.QUrl("main.qml"))
 view.showFullScreen()

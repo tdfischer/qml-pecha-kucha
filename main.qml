@@ -54,17 +54,24 @@ Rectangle {
             console.log("Start!")
         }
 
+        property bool _ended: false
+
         function next() {
-            if (slide >= slideFiles.length) {
-                main.flash()
+            if (slide >= slideFiles.length-1) {
+                if (_ended) {
+                    main.flash()
+                    scrapeEffect.playbackRate = 0.9+(0.2*Math.random())
+                    scrapeEffect.play()
+                }
+                byline.hidden = false
+                _ended = true;
                 timer.stop()
                 deck.time = 0
-                scrapeEffect.playbackRate = 0.9+(0.2*Math.random())
-                scrapeEffect.play()
             } else {
+                byline.hidden = true
                 slide += 1;
+                timer.stop();
                 swapAnimation.start();
-                timer.restart();
                 slideEffect.playbackRate = 0.9+(0.2*Math.random())
                 slideEffect.play()
             }
@@ -81,6 +88,13 @@ Rectangle {
                 }
             }
             ParallelAnimation {
+                NumberAnimation {
+                    property: "time"
+                    target: deck
+                    to: deck.speed
+                    duration: deck.duration/2
+                    easing.type: Easing.OutExpo
+                }
                 NumberAnimation {
                     property: "height"
                     target:main
@@ -128,6 +142,9 @@ Rectangle {
                     main.opacity = 1;
                     buffer.opacity = 0;
                     deck.bufferSlide += 1;
+                    if (deck.slide < slideFiles.length-1)
+                        timer.start()
+                    deck.time = 0
                 }
             }
         }
@@ -138,6 +155,34 @@ Rectangle {
         MouseArea {
             onClicked: deck.next()
             anchors.fill: parent
+        }
+    }
+
+    Rectangle {
+        id: byline
+        color: "black"
+        anchors.right: root.right
+        anchors.bottom: root.bottom
+        width: root.width/8*6
+        height: hidden ? 0 : root.height/3
+        property bool hidden: false
+        Behavior on height {
+            NumberAnimation {duration: 400;easing.type:Easing.OutBounce}
+        }
+        Row {
+            anchors.margins: 10
+            anchors.right: parent.right
+            anchors.top: parent.top
+            Text {
+                text: author
+                color: "white"
+                font.pointSize: 102
+            }
+            Text {
+                text: author
+                color: "white"
+                font.pointSize: 48
+            }
         }
     }
 
@@ -154,12 +199,15 @@ Rectangle {
             anchors.margins: 5
             anchors.fill: parent
             radius: 5
-            color: "black"
+            color: (deck.slide == slideFiles.length-1) ? "red" : "black"
+            Behavior on color  {
+                PropertyAnimation {duration: deck.duration }
+            }
             Item {
                 anchors.margins: 3
                 anchors.fill: parent
                 Text {
-                    text: (deck.slide+1)+"/"+(slideFiles.length+1);color: "white"
+                    text: (deck.slide+1)+"/"+(slideFiles.length);color: "white"
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
